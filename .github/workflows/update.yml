@@ -20,6 +20,8 @@ jobs:
           python-version: "3.13"
 
       - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
 
       - name: Set run date
         run: echo "RUN_DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
@@ -29,13 +31,13 @@ jobs:
         env:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
 
-      # This will update the files for cloud-latest but not create a new release
+      # This will update the files for the `cloud` tag but not create a new release
       - name: Publish MAU release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: cloud-latest
-          name: "Latest MAU Data (${{ env.RUN_DATE }})"
-          body: "Automatically updated MAU datasets."
+          tag_name: cloud
+          name: "Latest cloud MAU Data (${{ env.RUN_DATE }})"
+          body: "Automatically updated cloud MAU datasets."
           files: |
             data/maus-by-hub.csv
             data/maus-unique-by-cluster.csv

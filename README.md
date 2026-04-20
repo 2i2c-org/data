@@ -29,7 +29,7 @@ nox -s download -- cloud
 
 ## Where the data goes
 
-Each dataset publishes its files to a **GitHub Release** with a dedicated tag (e.g., `cloud-latest`). A daily GitHub Actions workflow keeps them up to date.
+Each dataset publishes its files to a **GitHub Release** with a dedicated tag (e.g., `cloud`). A daily GitHub Actions workflow keeps them up to date.
 
 ## Downloading this data from another repository
 
@@ -38,8 +38,8 @@ There's a separate release for each type of data so you can download them separa
 
 ```bash
 # Download all assets from a dataset's release
-gh release download cloud-latest --repo 2i2c-org/data --dir data/
+gh release download cloud --repo 2i2c-org/data --dir data/
 
 # Download a specific file
-gh release download cloud-latest --repo 2i2c-org/data --pattern "maus-by-hub.csv" --dir data/
+gh release download cloud --repo 2i2c-org/data --pattern "maus-by-hub.csv" --dir data/
 ```

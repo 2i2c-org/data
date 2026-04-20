@@ -1,5 +1,6 @@
-import nox
 from pathlib import Path
+
+import nox
 
 nox.options.default_venv_backend = "uv"
 nox.options.reuse_existing_virtualenvs = True
