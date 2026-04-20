@@ -1,0 +1,5 @@
+prometheus-pandas
+pandas
+requests
+python-dotenv
+rich
