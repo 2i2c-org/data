@@ -1,0 +1,43 @@
+name: Update Data
+
+on:
+  schedule:
+    # 9 AM UTC = ~1 AM PST
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-cloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Set run date
+        run: echo "RUN_DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
+
+      - name: Download MAU data
+        run: uvx nox -s download -- cloud
+        env:
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+
+      # This will update the files for cloud-latest but not create a new release
+      - name: Publish MAU release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cloud-latest
+          name: "Latest MAU Data (${{ env.RUN_DATE }})"
+          body: "Automatically updated MAU datasets."
+          files: |
+            data/maus-by-hub.csv
+            data/maus-unique-by-cluster.csv
+            data/errors.txt
+          make_latest: false
