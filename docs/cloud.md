@@ -98,7 +98,7 @@ fig.show()
 
 ::::{dropdown} Why are total and unique MAUs sometimes different?
 On some pages, you'll notice that the "total MAUS" (the first plot) is different
-from the "unique MAUs" (the second plot). This is beacuse we use two different
+from the "unique MAUs" (the second plot). This is because we use two different
 ways to calculate each. Total MAUs uses statistics generated _by JupyterHub_
 (explained in this [blog post about MAUs](https://blog.jupyter.org/accurately-counting-daily-weekly-monthly-active-users-on-jupyterhub-6fbec6c6ce2f)). Unique MAUs uses a
 custom PromQL query to our Grafana, allowing us to get a list of _usernames_ that
