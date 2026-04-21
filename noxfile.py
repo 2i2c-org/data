@@ -14,17 +14,30 @@ ALL_DATASETS = sorted(
 )
 
 
-@nox.session
-def download(session):
-    """Download data. Use `-- <name>` to run a single dataset."""
-    session.install("-r", "requirements.txt")
+def _resolve_datasets(session):
+    """Resolve `-- <name>` positional args to a list of datasets, or all."""
     datasets = session.posargs or ALL_DATASETS
     for name in datasets:
         if name not in ALL_DATASETS:
             session.error(f"Unknown dataset: {name}. Available: {ALL_DATASETS}")
+    return datasets
+
+
+@nox.session
+def download(session):
+    """Download data, then validate. Use `-- <name>` to run a single dataset."""
+    session.install("-r", "requirements.txt")
+    for name in _resolve_datasets(session):
         session.run("python", f"scripts/{name}/download.py")
-        validate = SCRIPTS_DIR / name / "validate.py"
-        session.run("python", str(validate))
+    test(session)
+
+
+@nox.session
+def test(session):
+    """Validate already-downloaded data. Use `-- <name>` to run a single dataset."""
+    session.install("-r", "requirements.txt")
+    for name in _resolve_datasets(session):
+        session.run("python", str(SCRIPTS_DIR / name / "validate.py"))
 
 
 def _docs_prepare(session):
