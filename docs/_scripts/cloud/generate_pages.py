@@ -8,8 +8,6 @@ For each cluster we do the following:
     * cloud/<cluster>-by-hub.csv    (12mo active users by hub)
     * cloud/<cluster>-unique.csv    (12mo unique users for the cluster)
     * cloud/<cluster>-month-end.csv (12mo month-end unique MAUs)
-- Write _scripts/cloud/_clusters_list.md - this is a list of all clusters
-  we can embed in the docs.
 """
 
 import pandas as pd
@@ -19,7 +17,6 @@ from pathlib import Path
 DATA = Path("_data")
 CLOUD = Path("cloud")
 TEMPLATE = Path("_scripts/cloud/cluster_page.md.j2")
-CLUSTERS_LIST = Path("_scripts/cloud/_clusters_list.md")
 
 YEAR_AGO = pd.Timestamp.utcnow().tz_localize(None).normalize() - pd.Timedelta(days=365)
 
@@ -69,10 +66,6 @@ def main():
             CLOUD / f"{name}-month-end.csv",
             index=False,
         )
-
-    # Puts this in _scripts/cloud/ so the MyST TOC doesn't pick it up as a page.
-    lines = [f"- [{name}](cloud/{name}.md)" for name in clusters]
-    CLUSTERS_LIST.write_text("\n".join(lines) + "\n")
 
 
 if __name__ == "__main__":

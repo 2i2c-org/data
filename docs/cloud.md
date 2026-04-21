@@ -85,7 +85,8 @@ fig.show()
 
 ## Per-cluster pages
 
-```{include} _scripts/cloud/_clusters_list.md
+```{tableofcontents}
+:kind: children
 ```
 
 ## Admin / maintainer section
