@@ -43,3 +43,26 @@ gh release download cloud --repo 2i2c-org/data --dir data/
 # Download a specific file
 gh release download cloud --repo 2i2c-org/data --pattern "maus-by-hub.csv" --dir data/
 ```
+
+## The docs site
+
+`docs/` is a [MyST](https://mystmd.org) site that renders the published
+data as browsable pages. It's deployed to GitHub Pages by the same
+workflow that publishes the `cloud` release.
+
+```bash
+nox -s docs        # full build
+nox -s docs-live   # local preview (this is slow because parallel execution isn't supported)
+```
+
+### Layout
+
+```
+docs/
+├── myst.yml                         # project config + TOC
+├── index.md, cloud.md               # landing + fleet overview
+├── cloud/<cluster>.md               # per-cluster pages (generated at build)
+├── cloud/<cluster>-*.csv            # per-plot CSVs (generated at build)
+├── _data/                           # release assets (downloaded at build)
+└── _scripts/<dataset>/              # build helpers, one folder per dataset
+```

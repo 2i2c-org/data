@@ -1,0 +1,19 @@
+version: 1
+project:
+  title: 2i2c Data
+  description: Public views of the datasets published by 2i2c-org/data.
+  github: https://github.com/2i2c-org/data
+  exclude:
+    - _scripts/**
+    - _data/**
+    - "**/_*.md"
+  toc:
+    - file: index.md
+    - file: cloud.md
+      children:
+        - pattern: cloud/*.md
+site:
+  template: book-theme
+  options:
+    logo_text: 2i2c Data
+    folders: true

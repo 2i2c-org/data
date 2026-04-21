@@ -210,3 +210,10 @@ __marimo__/
 data/
 .env
 .nox/
+
+# Docs build artefacts (downloaded data, generated cluster pages, build output)
+docs/_data/
+docs/_build/
+docs/cloud/*.md
+docs/cloud/*.csv
+docs/_scripts/cloud/_clusters_list.md
