@@ -28,6 +28,7 @@ jobs:
         run: uvx nox -s download -- cloud
         env:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
 
       # This will update the files for the `cloud` tag but not create a new release
       - name: Publish MAU release
