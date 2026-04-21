@@ -91,6 +91,18 @@ fig.show()
 
 ## Admin / maintainer section
 
+::::{dropdown} Why are total and unique MAUs sometimes different?
+On some pages, you'll notice that the "total MAUS" (the first plot) is different
+from the "unique MAUs" (the second plot). This is beacuse we use two different
+ways to calculate each. Total MAUs uses statistics generated _by JupyterHub_
+(explained in this [blog post about MAUs](https://blog.jupyter.org/accurately-counting-daily-weekly-monthly-active-users-on-jupyterhub-6fbec6c6ce2f)). Unique MAUs uses a
+custom PromQL query to our Grafana, allowing us to get a list of _usernames_ that
+logged in and then count the number of unique values.
+
+The JupyterHub statistic is a bit more conservative - it defines an active user based on additional criteria (like taking actions on the hub).
+Ideally we'd use the same for unique MAUs, but for now this is the best we've got in order to detect username uniqueness.
+::::
+
 ::::{dropdown} Clusters with errors
 Clusters listed below had Grafana query failures on the most recent
 download. Their data may be stale or missing.

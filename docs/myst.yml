@@ -16,4 +16,6 @@ site:
   template: book-theme
   options:
     logo_text: 2i2c Data
+    logo: _media/logo.webp
+    logo_dark: _media/logo-dark.webp
     folders: true
