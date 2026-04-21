@@ -20,9 +20,6 @@ jobs:
           python-version: "3.13"
 
       - uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
-          cache-dependency-glob: "requirements.txt"
 
       - name: Set run date
         run: echo "RUN_DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
