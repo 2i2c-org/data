@@ -41,6 +41,7 @@ jobs:
         run: uvx nox -s docs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_URL: /data
 
       - uses: actions/upload-pages-artifact@v3
         with:
