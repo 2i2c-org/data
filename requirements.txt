@@ -3,3 +3,8 @@ pandas
 requests
 python-dotenv
 rich
+jinja2
+plotly
+pyyaml
+jupyter
+ipykernel
