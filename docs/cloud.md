@@ -13,23 +13,28 @@ Per-cluster pages are linked at the bottom. Data is pulled from the
 
 ```{code-cell} python
 :tags: [remove-input]
+import sys
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
 import yaml
-from pathlib import Path
+
+sys.path.insert(0, str(Path("_scripts/cloud").resolve()))
+from filters import drop_clusters, drop_hubs
 
 DATA = Path("_data")
 meta = yaml.safe_load((DATA / "release_metadata.yml").read_text())
 
 df_unique = pd.read_csv(DATA / "maus-unique-by-cluster.csv")
 df_unique["date"] = pd.to_datetime(df_unique["date"])
-df_unique = df_unique[~df_unique["cluster"].str.contains("prometheus")]
+df_unique = drop_clusters(df_unique)
 df_unique = df_unique[df_unique["unique_users"] > 0]
 
 df_hub = pd.read_csv(DATA / "maus-by-hub.csv")
 df_hub["date"] = pd.to_datetime(df_hub["date"])
-df_hub = df_hub[~df_hub["hub"].astype(str).str.contains("staging", na=False)]
-df_hub = df_hub[~df_hub["cluster"].str.contains("prometheus")]
+df_hub = drop_clusters(df_hub)
+df_hub = drop_hubs(df_hub)
 df_hub = df_hub.dropna(subset=["users"])
 df_hub = df_hub[df_hub["users"] > 0]
 

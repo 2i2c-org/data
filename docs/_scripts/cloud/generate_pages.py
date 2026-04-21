@@ -10,23 +10,20 @@ For each cluster we do the following:
     * cloud/<cluster>-month-end.csv (12mo month-end unique MAUs)
 """
 
+import sys
+from pathlib import Path
+
 import pandas as pd
 from jinja2 import Template
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from filters import drop_clusters, drop_hubs
 
 DATA = Path("_data")
 CLOUD = Path("cloud")
 TEMPLATE = Path("_scripts/cloud/cluster_page.md.j2")
 
-YEAR_AGO = pd.Timestamp.utcnow().tz_localize(None).normalize() - pd.Timedelta(days=365)
-
-
-def drop_clusters(df):
-    """Remove clusters that shouldn't be published on the docs site.
-
-    Add new cluster names (or patterns) here as the need comes up.
-    """
-    return df[~df["cluster"].str.contains("prometheus")]
+YEAR_AGO = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize() - pd.Timedelta(days=365)
 
 
 def main():
@@ -35,12 +32,10 @@ def main():
     # in scripts/cloud/download.py.
     full_hub = drop_clusters(pd.read_csv(DATA / "maus-by-hub.csv"))
     full_hub["date"] = pd.to_datetime(full_hub["date"])
-    # Drop staging hubs in plots because these are just for dev
-    full_hub = full_hub[~full_hub["hub"].astype(str).str.contains("staging", na=False)]
+    full_hub = drop_hubs(full_hub)
     # Drop datapoints with missing users
     full_hub = full_hub.dropna(subset=["users"])
 
-    # Drop clusters that we know shouldn't be published (usually dev clusters)
     full_unique = drop_clusters(pd.read_csv(DATA / "maus-unique-by-cluster.csv"))
     full_unique["date"] = pd.to_datetime(full_unique["date"])
     full_unique = full_unique[full_unique["unique_users"] > 0]
