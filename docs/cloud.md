@@ -41,7 +41,7 @@ last_updated = meta["publishedAt"].strftime("%Y-%m-%d %H:%M UTC")
 **Last updated:** {eval}`last_updated`
 
 | Total clusters | Total hubs |
-|---:|---:|
+|:---|:---|
 | {eval}`n_clusters` | {eval}`n_hubs` |
 
 ## Unique monthly users by cluster
