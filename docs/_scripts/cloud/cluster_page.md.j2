@@ -52,6 +52,13 @@ fig.show()
 
 Download: [{{ cluster_name }}-by-hub.csv]({{ cluster_name }}-by-hub.csv)
 
+::::{dropdown} Show data table
+```{code-cell} python
+:tags: [remove-input]
+df_hub.sort_values(["date", "hub"]).style.hide(axis="index")
+```
+::::
+
 ## Unique active users
 
 ```{code-cell} python
@@ -67,20 +74,34 @@ fig.show()
 
 Download: [{{ cluster_name }}-unique.csv]({{ cluster_name }}-unique.csv)
 
+::::{dropdown} Show data table
+```{code-cell} python
+:tags: [remove-input]
+df_unique.sort_values("date").style.hide(axis="index")
+```
+::::
+
 ## Month-end unique MAUs
 
 ```{code-cell} python
 :tags: [remove-input]
 fig = px.bar(
     df_month,
-    x=df_month["date"].dt.strftime("%Y-%m"),
+    x=df_month["date"].dt.strftime("%Y-%m-%d"),
     y="unique_users",
     title=f"Month-end unique MAUs on {CLUSTER}",
-    labels={"x": "month", "unique_users": "unique users"},
+    labels={"x": "month-end date", "unique_users": "unique users"},
 )
 fig.show()
 ```
 
 Download: [{{ cluster_name }}-month-end.csv]({{ cluster_name }}-month-end.csv)
+
+::::{dropdown} Show data table
+```{code-cell} python
+:tags: [remove-input]
+df_month.sort_values("date").style.hide(axis="index")
+```
+::::
 
 The full dataset (all clusters) is available in the [`cloud` GitHub release](https://github.com/2i2c-org/data/releases/tag/cloud).
