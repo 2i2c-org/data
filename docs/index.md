@@ -5,6 +5,10 @@ Public views of the datasets published by
 Each dataset is published as a GitHub Release; this site renders it so
 community members can read it without leaving the browser.
 
+:::{warning}
+This is a prototype site. We're trying it out to learn how it can be useful to our communities, and some of the data or visualizations might change rapidly or without notice as we work out the kinks.
+:::
+
 ## Datasets
 
 - **[Cloud](cloud.md)** - monthly active users on each 2i2c cluster and hub.

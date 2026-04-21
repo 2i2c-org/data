@@ -1,5 +1,8 @@
 # 2i2c Data
 
+> [!WARNING]
+> This is a prototype site. We're trying it out to learn how it can be useful to our communities, and some of the data or visualizations might change rapidly or without notice as we work out the kinks.
+
 This repository downloads public data about 2i2c's infrastructure and services, and publishes each dataset as a GitHub Release for easy re-use elsewhere.
 
 ## Datasets
