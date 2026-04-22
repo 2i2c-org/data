@@ -67,6 +67,23 @@ fig = px.area(
 fig.show()
 ```
 
+:::{dropdown} How "unique MAUs" are calculated
+:label: how-unique-maus
+Count of **distinct usernames** that logged in during a given month.
+A user counts as "active" if they logged in.
+
+For monthly summary plots (the bar plots), we calculate the number of unique usernames that logged in at least once that month.
+
+:::
+
+:::{dropdown} How "total MAUs" are calculated
+:label: how-total-maus
+Count of active users is calculated and reported by **JupyterHub**.
+JupyterHub's definition of an active user is a bit more restrictive than our "unique Monthly Active Users" count.
+See the [JupyterHub MAU blog post](https://blog.jupyter.org/accurately-counting-daily-weekly-monthly-active-users-on-jupyterhub-6fbec6c6ce2f)
+for details.
+:::
+
 ## Active hubs by cluster
 
 ```{code-cell} python
@@ -93,20 +110,6 @@ fig.show()
 ```{tableofcontents}
 :kind: children
 ```
-
-## Admin / maintainer section
-
-::::{dropdown} Why are total and unique MAUs sometimes different?
-On some pages, you'll notice that the "total MAUS" (the first plot) is different
-from the "unique MAUs" (the second plot). This is because we use two different
-ways to calculate each. Total MAUs uses statistics generated _by JupyterHub_
-(explained in this [blog post about MAUs](https://blog.jupyter.org/accurately-counting-daily-weekly-monthly-active-users-on-jupyterhub-6fbec6c6ce2f)). Unique MAUs uses a
-custom PromQL query to our Grafana, allowing us to get a list of _usernames_ that
-logged in and then count the number of unique values.
-
-The JupyterHub statistic is a bit more conservative - it defines an active user based on additional criteria (like taking actions on the hub).
-Ideally we'd use the same for unique MAUs, but for now this is the best we've got in order to detect username uniqueness.
-::::
 
 ::::{dropdown} Clusters with errors
 Clusters listed below had Grafana query failures on the most recent
