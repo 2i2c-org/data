@@ -28,7 +28,7 @@ peak_mau = int(df_unique["unique_users"].max()) if not df_unique.empty else 0
 ## At a glance
 
 | Current MAU | Peak MAU (12mo) |
-|---:|---:|
+|:---|:---|
 | {eval}`current_mau` | {eval}`peak_mau` |
 
 ## Active users by hub
@@ -50,6 +50,8 @@ fig = px.area(
 fig.show()
 ```
 
+_See [](#how-total-maus)._
+
 Download: [{{ cluster_name }}-by-hub.csv]({{ cluster_name }}-by-hub.csv)
 
 ::::{dropdown} Show data table
@@ -58,8 +60,6 @@ Download: [{{ cluster_name }}-by-hub.csv]({{ cluster_name }}-by-hub.csv)
 df_hub.sort_values(["date", "hub"]).style.hide(axis="index")
 ```
 ::::
-
-![](#how-total-maus)
 
 ## Unique active users
 
@@ -74,6 +74,8 @@ fig = px.line(
 fig.show()
 ```
 
+_See [](#how-unique-maus)._
+
 Download: [{{ cluster_name }}-unique.csv]({{ cluster_name }}-unique.csv)
 
 ::::{dropdown} Show data table
@@ -82,9 +84,6 @@ Download: [{{ cluster_name }}-unique.csv]({{ cluster_name }}-unique.csv)
 df_unique.sort_values("date").style.hide(axis="index")
 ```
 ::::
-
-![](#how-unique-maus)
-
 
 ## Month-end unique MAUs
 
@@ -100,6 +99,8 @@ fig = px.bar(
 fig.show()
 ```
 
+_See [](#how-unique-monthly-maus)._
+
 Download: [{{ cluster_name }}-month-end.csv]({{ cluster_name }}-month-end.csv)
 
 ::::{dropdown} Show data table
@@ -108,7 +109,5 @@ Download: [{{ cluster_name }}-month-end.csv]({{ cluster_name }}-month-end.csv)
 df_month.sort_values("date").style.hide(axis="index")
 ```
 ::::
-
-![](#how-unique-maus)
 
 The full dataset (all clusters) is available in the [`cloud` GitHub release](https://github.com/2i2c-org/data/releases/tag/cloud).
