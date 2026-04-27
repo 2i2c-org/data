@@ -120,6 +120,8 @@ Count of **distinct usernames** that logged in during a given month.
 A user counts as "active" if they logged in.
 We use a custom query across all of our clusters (similar to our [Grafana Dashboards](https://infrastructure.2i2c.org/topic/monitoring-alerting/grafana/)) so that we avoid double-counting usernames that log into multiple hubs on the same cluster.
 
+**If this is a BinderHub, these are sessions, not users**. BinderHub anonymizes users in ephemeral sessions, so the idea of a "unique" user doesn't apply here. If this community uses a BinderHub, these counts are sessions, even if each session is from the same user.
+
 (how-unique-monthly-maus)=
 ### How monthly unique MAUs are calculated
 
