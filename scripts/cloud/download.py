@@ -178,9 +178,9 @@ def download_unique_users(datasources):
     errors = []
     for uid, idata in track(list(datasources.groupby("uid"))):
         cluster_name = idata["name"].squeeze()
-        try:
-            prometheus = get_pandas_prometheus(uid)
-            for qdate in query_dates:
+        prometheus = get_pandas_prometheus(uid)
+        for qdate in query_dates:
+            try:
                 result = prometheus.query(query, qdate)
                 count = int(result.iloc[0]) if not result.empty else 0
                 unique_users.append(
@@ -190,8 +190,8 @@ def download_unique_users(datasources):
                         "unique_users": count,
                     }
                 )
-        except Exception as err:
-            errors.append(f"{cluster_name}: {err!r}")
+            except Exception as err:
+                errors.append(f"{cluster_name}: {err!r}")
 
     pd.DataFrame(unique_users).to_csv(path, index=False)
     print(f"Finished: {path}")
