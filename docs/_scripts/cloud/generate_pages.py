@@ -3,11 +3,10 @@
 For each cluster we do the following:
 
 - Render _scripts/cloud/cluster_page.md.j2 -> cloud/<cluster>.md.
-- Write three per-cluster CSVs alongside the page, each matching the
+- Write two per-cluster CSVs alongside the page, each matching the
   data shown in one of the page's plots:
     * cloud/<cluster>-by-hub.csv    (12mo active users by hub)
-    * cloud/<cluster>-unique.csv    (12mo unique users for the cluster)
-    * cloud/<cluster>-month-end.csv (12mo month-end unique MAUs)
+    * cloud/<cluster>-month-end.csv (12mo monthly unique MAUs)
 """
 
 import sys
@@ -23,7 +22,9 @@ DATA = Path("_data")
 CLOUD = Path("cloud")
 TEMPLATE = Path("_scripts/cloud/cluster_page.md.j2")
 
-YEAR_AGO = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize() - pd.Timedelta(days=365)
+YEAR_AGO = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize() - pd.Timedelta(
+    days=365
+)
 
 
 def main():
@@ -56,11 +57,7 @@ def main():
             (full_unique["cluster"] == name) & (full_unique["date"] >= YEAR_AGO)
         ]
         hub.to_csv(CLOUD / f"{name}-by-hub.csv", index=False)
-        unique.sort_values("date").to_csv(CLOUD / f"{name}-unique.csv", index=False)
-        unique[unique["date"].dt.is_month_end].sort_values("date").to_csv(
-            CLOUD / f"{name}-month-end.csv",
-            index=False,
-        )
+        unique.sort_values("date").to_csv(CLOUD / f"{name}-month-end.csv", index=False)
 
 
 if __name__ == "__main__":

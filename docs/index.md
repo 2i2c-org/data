@@ -32,7 +32,7 @@ import json
 from urllib.request import urlopen
 
 PAGE = "https://2i2c-org.github.io/data/cloud.cloudbank.json"
-WANTED = "cloudbank-unique.csv"
+WANTED = "cloudbank-month-end.csv"
 
 def find_url(node, source):
     if isinstance(node, dict):
@@ -53,7 +53,7 @@ def find_url(node, source):
 
 ast = json.load(urlopen(PAGE))
 print(find_url(ast, WANTED))
-# /build/cloudbank-unique-<hash>.csv
+# /build/cloudbank-month-end-<hash>.csv
 ```
 
 Prefix with the site origin (e.g. `https://2i2c.org/data`) to

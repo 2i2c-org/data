@@ -28,7 +28,8 @@ jobs:
         run: uvx nox -s download -- cloud
         env:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
-          GH_TOKEN: ${{ github.token }}
+          # Needs read access to 2i2c-org/data-private releases.
+          GH_TOKEN: ${{ secrets.DATA_PRIVATE_TOKEN }}
 
       # This will update the files for the `cloud` tag but not create a new release
       - name: Publish MAU release
