@@ -43,8 +43,10 @@ today = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
 recency_cutoff = today - pd.Timedelta(days=7)
 assert pd.to_datetime(by_hub["date"]).max() >= recency_cutoff, \
     "maus-by-hub.csv has no rows in the last 7 days"
-assert pd.to_datetime(unique["date"]).max() >= recency_cutoff, \
-    "maus-unique-by-cluster.csv has no rows in the last 7 days"
+# The unique CSV's newest row is the current month, dated at its month-end,
+# so a fresh download always has a row dated today or later.
+assert pd.to_datetime(unique["date"]).max() >= today, \
+    "maus-unique-by-cluster.csv has no current-month row"
 
 
 # --- [No duplicate keys] -----------------------------------------------------
@@ -67,8 +69,9 @@ assert (unique["unique_users"] >= 0).all(), \
 
 # --- [Reference value: utoronto 2025-12-31] ----------------------------------
 # Known-good historical unique_users count. Catches silent drift of old data.
+# 2309 = distinct non-staff usernames on utoronto during calendar December 2025.
 print("Checking reference value (utoronto, 2025-12-31)...")
-EXPECTED = 2096
+EXPECTED = 2309
 ref = unique.query("date == '2025-12-31' and cluster == 'utoronto'")
 assert len(ref) == 1, \
     "Reference row (utoronto, 2025-12-31) missing"
@@ -77,11 +80,12 @@ assert actual == EXPECTED, \
     f"utoronto unique_users on 2025-12-31 drifted: expected {EXPECTED}, got {actual}"
 
 
-# --- [Drift vs. previous publish] --------------------------------------------
-# Check whether historical data has changed since the last time we pulished data.
-# This is a pretty conservative check right now, but it'll be useful to learn
-# if we need to loosen this if we hit "expected" drift.
-print("Checking drift vs. previous publish...")
+# --- [Drift vs. published data] ----------------------------------------------
+# Closed months are historical facts: a fresh download should match what's
+# currently in the `cloud` release (published by the previous run). If it
+# doesn't, something upstream broke and we want to fail loudly instead of
+# silently rewriting history.
+print("Checking drift vs. published data...")
 print(f"  downloading previously published dataset to {PREV_DIR}/...")
 PREV_DIR.mkdir(parents=True, exist_ok=True)
 subprocess.run(
@@ -99,6 +103,9 @@ prev = pd.read_csv(PREV_DIR / "maus-unique-by-cluster.csv")
 merged = unique.merge(
     prev, on=["date", "cluster"], suffixes=("_curr", "_prev")
 )
+# The newest published month is the still-open current month, whose count
+# grows every day, so only compare the months before it.
+merged = merged[merged["date"] < prev["date"].max()]
 drifted = merged[merged["unique_users_curr"] != merged["unique_users_prev"]]
 print(f"  compared {len(merged)} overlapping rows, {len(drifted)} drifted")
 assert drifted.empty, \

@@ -1,15 +1,10 @@
 """Download MAU data from Grafana/Prometheus.
 
-This calculates unique users in a rolling 30-day window. We build a uniform
-sampling grid anchored on month-ends (through the current month-end).
-
 Produces two CSV files in data/:
 - maus-by-hub.csv: monthly active users per hub, sampled daily
-- maus-unique-by-cluster.csv: unique users per cluster, deduplicated across hubs, sampled 6x per month anchored on month-ends
+- maus-unique-by-cluster.csv: distinct users per cluster per calendar month
 
-Definition of "monthly active users" used by the unique-users CSV:
-    The number of distinct `annotation_hub_jupyter_org_username` values
-    observed on `jupyter-*` pods in 30 day windows.
+The "unique MAUs" definition is documented in docs/cloud.md.
 
 All query timestamps are anchored to UTC so that the output doesn't depend on the
 time that this script was run.
@@ -18,11 +13,14 @@ time that this script was run.
 Notes
 ---
 - Requires a GRAFANA_TOKEN environment variable with access to our Grafana API!
+- Requires `gh` auth that can read 2i2c-org/data-private (for the team list)!
 - The unique MAUs query will take a little while to run!
 """
 
+import io
 import os
 import re
+import subprocess
 import requests
 from pathlib import Path
 from dotenv import load_dotenv
@@ -36,6 +34,10 @@ GRAFANA_TOKEN = os.environ["GRAFANA_TOKEN"]
 GRAFANA_URL = "https://grafana.pilot.2i2c.cloud"
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
+
+# Service accounts excluded from unique-user counts, alongside the
+# 2i2c team members from get_team_usernames().
+IGNORED_USERNAMES = {"deployment-service-check"}
 
 # Anchor every query timestamp to UTC midnight to keep the results deterministic.
 NOW = datetime.now(timezone.utc).replace(
@@ -127,14 +129,32 @@ def download_hub_activity(datasources):
     return errors
 
 
-def download_unique_users(datasources):
-    """Download unique users per cluster (deduplicated across hubs).
+def get_team_usernames():
+    """2i2c team usernames and emails, from team.csv in data-private's
+    `team-latest` release. We exclude these from MAU counts."""
+    team = pd.read_csv(io.BytesIO(subprocess.check_output([
+        "gh", "release", "download", "team-latest",
+        "--repo", "2i2c-org/data-private", "--pattern", "team.csv", "--output", "-",
+    ])))
+    return set(team["GitHub"].dropna()) | set(team["E-mail"].dropna())
 
-    Sampled 6x per month (month-end + 5 equally-spaced points to the next
-    month-end) for clean monthly totals and a smooth curve.
+
+def download_unique_users(datasources):
+    """Download unique users per cluster per calendar month (deduplicated across hubs).
+
+    A user counts as active in a month if their notebook server ran at any
+    point that month. 2i2c team members and service accounts are excluded.
+    The current month is a count-so-far, dated at the coming month-end.
     """
+    # Ignore 2i2c team members and service accounts. PromQL regex matchers are
+    # fully anchored, so this only excludes exact (case-insensitive) matches.
+    # Backslashes are doubled because PromQL string literals process escapes.
+    ignore = IGNORED_USERNAMES | get_team_usernames()
+    ignore_regex = "(?i)(" + "|".join(sorted(re.escape(name) for name in ignore)) + ")"
+    ignore_regex = ignore_regex.replace("\\", "\\\\")
+
     # Counts unique usernames across all hubs on a cluster by finding
-    # all jupyter user pods in the last 30 days and counting distinct usernames
+    # all jupyter user pods in a calendar month and counting distinct usernames.
     query = """
         count(
           count by (annotation_hub_jupyter_org_username) (
@@ -142,36 +162,28 @@ def download_unique_users(datasources):
               kube_pod_annotations{
                 namespace=~".*",
                 pod=~"jupyter-.*",
-                annotation_hub_jupyter_org_username=~".+"
-              }[30d]
+                annotation_hub_jupyter_org_username=~".+",
+                annotation_hub_jupyter_org_username!~"IGNORE"
+              }[DAYSd]
             )
           )
         )
-    """
+    """.replace("IGNORE", ignore_regex)
 
     path = DATA_DIR / "maus-unique-by-cluster.csv"
     print(f"Downloading unique users per cluster to {path}...")
 
     # Build query dates: every month-end from 24 months ago through the
-    # *current* month-end, plus 5 equally-spaced points between each pair.
+    # *current* month-end. The current month-end is in the future, so its
+    # count only covers the month so far and grows until the month closes.
     start = NOW - timedelta(days=730)
     # Add a month-buffer to the end so date_range picks up the current
     # month-end even though it's after NOW.
     month_ends = pd.date_range(start=start, end=NOW + timedelta(days=32), freq="ME", tz="UTC")
-    query_dates = []
-    for ii in range(len(month_ends) - 1):
-        # periods=7 gives: month_ends[ii], 5 in-betweens, month_ends[ii+1].
-        # Slice off the right endpoint so the next iteration's start doesn't
-        # double-count it.
-        segment = pd.date_range(month_ends[ii], month_ends[ii + 1], periods=7)
-        query_dates.extend(d.to_pydatetime() for d in segment[:-1])
-    query_dates.append(month_ends[-1].to_pydatetime())
-    # Drop today and anything after — today isn't over yet, so we can't report
-    # an "end-of-day" figure for it. It'll be picked up on tomorrow's run.
-    query_dates = [d for d in query_dates if d < NOW]
     # Snap every sample to end-of-day UTC.
     query_dates = [
-        d.replace(hour=23, minute=59, second=59, microsecond=0) for d in query_dates
+        d.to_pydatetime().replace(hour=23, minute=59, second=59, microsecond=0)
+        for d in month_ends
     ]
 
     unique_users = []
@@ -181,7 +193,8 @@ def download_unique_users(datasources):
         prometheus = get_pandas_prometheus(uid)
         for qdate in query_dates:
             try:
-                result = prometheus.query(query, qdate)
+                # A month-end's day number is the number of days in that month.
+                result = prometheus.query(query.replace("DAYS", str(qdate.day)), qdate)
                 count = int(result.iloc[0]) if not result.empty else 0
                 unique_users.append(
                     {

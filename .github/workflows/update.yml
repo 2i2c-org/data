@@ -29,7 +29,7 @@ jobs:
         env:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
           # Needs read access to 2i2c-org/data-private releases.
-          GH_TOKEN: ${{ secrets.DATA_PRIVATE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       # This will update the files for the `cloud` tag but not create a new release
       - name: Publish MAU release
