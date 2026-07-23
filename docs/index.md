@@ -17,7 +17,7 @@ This is a prototype site. We're trying it out to learn how it can be useful to o
 
 This site is built with [MyST](https://mystmd.org), and raw data for
 every plot is downloadable from the page that shows it. File names
-include a content hash (e.g. `cloudbank-unique-[hash].csv`), so the
+include a content hash (e.g. `cloudbank-month-end-[hash].csv`), so the
 exact URL changes whenever the underlying data does. This means you
 can't hard-code the link.
 
