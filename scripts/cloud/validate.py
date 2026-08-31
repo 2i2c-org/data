@@ -103,9 +103,15 @@ prev = pd.read_csv(PREV_DIR / "maus-unique-by-cluster.csv")
 merged = unique.merge(
     prev, on=["date", "cluster"], suffixes=("_curr", "_prev")
 )
-# The newest published month is the still-open current month, whose count
-# grows every day, so only compare the months before it.
-merged = merged[merged["date"] < prev["date"].max()]
+# Only compare months that were already over when the baseline was published.
+# The published file can't tell us which those are (it holds the then-open
+# month and even a stub row for the next one), so go by the calendar instead:
+# skip the current and previous month. With a daily publish, everything older
+# was closed in both datasets; a publish gap longer than a month would break
+# this assumption, but the finance dashboard's freshness check flags a frozen
+# release within days — long before that.
+closed_before = (today.replace(day=1) - pd.DateOffset(months=1)).strftime("%Y-%m-%d")
+merged = merged[merged["date"] < closed_before]
 drifted = merged[merged["unique_users_curr"] != merged["unique_users_prev"]]
 print(f"  compared {len(merged)} overlapping rows, {len(drifted)} drifted")
 assert drifted.empty, \
